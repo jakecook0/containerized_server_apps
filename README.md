@@ -1,3 +1,5 @@
+*** To skip all the dirty details of deployment and configuration, simply run `startup.sh` after configuring all the .env files for each dir ***
+
 # Nextcloud Setup and Deployment on Docker-Compose w/ Reverse Proxy for Secure File Trasnfer (HHTTPS)
 
 Resource: https://linuxhandbook.com/install-nextcloud-docker/

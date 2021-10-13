@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  minecraft:
+    image: itzg/minecraft-server
+    volumes:
+      - "/mnt/data/all/minecraft:/data"
+#    ports:
+#      - 25565:25565
+    environment:
+      - EULA
+      - VERSION
+      - VIRTUAL_HOST
+      - VIRTUAL_PORT
+#      - LETSENCRYPT_HOST
+      - OPS
+#      - JAVA_OPS="-Xms512m -Xmx2048m"
+      - INIT_MEMORY
+      - MAX_MEMORY
+      - ENABLE_ROLLING_LOGS
+      - ENABLE_AUTOPAUSE
+      - MAX_TICK_TIME
+      - OVERRIDE_SERVER_PROPERTIES
+#      - PROXY
+    tty: true
+    stdin_open: true
+    restart: "on-failure"
+    networks: ["net"]
+
+networks:
+  net:
+    external: true
+

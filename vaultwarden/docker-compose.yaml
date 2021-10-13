@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+
+  Vaultwarden:
+    image: "vaultwarden/server:1.22.2"
+    container_name: vaultwarden
+#    user: 1000:1000
+    volumes:
+      - "/mnt/data/all/vaultwarden-data/:/data/"
+    environment:
+      - VIRTUAL_HOST
+      - VIRTUAL_PORT
+      - LETSENCRYPT_HOST
+      - SIGNUPS_ALLOWED
+      - SHOW_PASSWORD_HINT
+#      - ROCKET_PORT
+      - INVITATIONS_ALLOWED
+    restart: "always"
+    networks: ["net"]
+
+networks:
+  net:
+    external: true

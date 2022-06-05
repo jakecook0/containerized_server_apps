@@ -40,6 +40,16 @@ services:
     restart: "always"
     networks: ["net", "common"]
 
+  Redis:
+    image: "redis:7.0.0"
+    networks: ["common"]
+    hostname: "redis"
+    ports: 
+      - "6379:6379"
+    restart: "always"
+    environment:
+      - REDIS_PASSWORD
+
 networks:
   net:
     external: true

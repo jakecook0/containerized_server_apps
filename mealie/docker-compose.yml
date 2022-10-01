@@ -1,0 +1,52 @@
+---
+version: "3.7"
+services:
+  mealie-frontend:
+    image: hkotel/mealie:frontend-v1.0.0beta-4
+    container_name: mealie-frontend
+    environment:
+    # Set Frontend ENV Variables Here
+      - API_URL=http://mealie-api:9000 # 
+      - VIRTUAL_HOST
+      - VIRTUAL_PORT
+      - TRUSTED_PROXIES
+      - LETSENCRYPT_HOST
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - /mnt/data/all/mealie-data:/app/data/ # 
+    networks: ["net", "common"]
+
+  mealie-api:
+    image: hkotel/mealie:api-v1.0.0beta-4
+    container_name: mealie-api
+    volumes:
+      - /mnt/data/all/mealie-data:/app/data/
+    environment:
+    # Set Backend ENV Variables Here
+      - ALLOW_SIGNUP=false
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Denver
+      - MAX_WORKERS=1
+      - WEB_CONCURRENCY=1
+      - BASE_URL
+      - SMTP_HOST
+      - SMTP_PORT
+      - SMTP_AUTH_STRATEGY
+      - SMTP_FROM_NAME
+      - SMTP_FROM_EMAIL
+      - SMTP_USER
+      - SMTP_PASSWORD
+#      - VIRTUAL_HOST
+#      - VIRTUAL_PORT
+#      - LETSENCRYPT_HOST
+    restart: always
+    networks: ["net", "common"]
+
+networks:
+  net:
+    external: true
+  common:
+

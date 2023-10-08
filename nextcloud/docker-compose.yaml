@@ -2,7 +2,7 @@ version: "3.8"
 services:
 
   NCDatabase:
-    image: "postgres:13.4"
+    image: "postgres:13.8"
     hostname: "${POSTGRES_HOST}"
     volumes:
       - "/mnt/data/postgres-data:/var/lib/postgresql/data"
@@ -14,7 +14,7 @@ services:
     networks: ["common"]
 
   Nextcloud:
-    image: "nextcloud:22.2.8-apache"
+    image: "nextcloud:25.0.3-apache"
     volumes:
       - "/mnt/data/nextcloud-server:/var/www/html"
       - "/mnt/data/all/nextcloud-data:/var/www/html/data"
@@ -41,7 +41,7 @@ services:
     networks: ["net", "common"]
 
   Redis:
-    image: "redis:7.0.0"
+    image: "redis:alpine"
     networks: ["common"]
     hostname: "redis"
     ports: 

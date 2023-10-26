@@ -1,10 +1,11 @@
-*** To skip all the dirty details of deployment and configuration, simply run `startup.sh` after configuring all the .env files for each dir ***
+** To skip all the dirty details of deployment and configuration, simply run `startup.sh` after configuring all the .env files for each dir **
 
-# Nextcloud Setup and Deployment on Docker-Compose w/ Reverse Proxy for Secure File Trasnfer (HHTTPS)
+Contents:
+1. [Nginx Reverse Proxy](#nginx-reverse-proxy-for-https)
+1. [Nextcloud Install](#nextcloud)
+1. [Vaultwarden Install](#vaultwarden)
 
-Resource: https://linuxhandbook.com/install-nextcloud-docker/
-
-## Setup Nginix Reverse Proxy
+# Nginx Reverse Proxy for HTTPS
 
 1. Copy github repo to a new folder: https://github.com/linuxhandbook/tutorial-snippets/tree/main/Reverse_Proxy
 >  Recommended: research how this proxy setup works further, not required for this install
@@ -13,6 +14,7 @@ https://github.com/gepd/docker-compose-letsencrypt-nginx-proxy-companion
 
 > In short, start this docker-compose, then simply add the correct environment variables to your docker run command (or docker-compose/swarm/etc).
 > Example apache server with TLS (exclude `LETSENCRYPT` for no security, only reverse proxy):
+
 ```sh
 docker run -d -e VIRTUAL_HOST=your.domain.com \
               -e LETSENCRYPT_HOST=your.domain.com \
@@ -25,16 +27,23 @@ docker run -d -e VIRTUAL_HOST=your.domain.com \
 1. Modify `env.example` to `.env` and change admin email address
 1. Change `max_upload_size.conf` to match max supported file upload size
 1. Create docker network named `net`
+
     ```sh
     docker network create net
     ```
+
 1. start containers
+
     ```sh
     docker-compose up -d
     ```
 
 > Test Endpoint now by going to `https://<device_ip_or_hostname>` in a browser
 > In current instance: `https://sanctuary`
+
+# Nextcloud
+
+Resource: https://linuxhandbook.com/install-nextcloud-docker/
 
 ## Deploy Nextcloud with Postgresql
 
@@ -66,6 +75,7 @@ https://www.namecheap.com/support/knowledgebase/article.aspx/583/11/how-do-i-con
 Provides free SSL Certs
 
 ## Certbot -- not in use as it needs to run inside container or on bare metal
+
 https://certbot.eff.org/lets-encrypt/ubuntufocal-apache
 
 Automated tool to manage certs.
@@ -84,3 +94,13 @@ Automated tool to manage certs.
   sudo certbot certonly --<server_type_(apache/nginx)>
   ```
 
+
+# Vaultwarden
+
+https://registry.hub.docker.com/r/vaultwarden/server
+
+Vaultwarden is an alternative Bitwarden server (written in Rust) which runs lighter (less memory, disk usage, containers) than the traditional Bitwarden server deployment, which is intended more for enterprise platforms.
+
+See the wiki guide for setting environment variables, backup and hardening, and more recommendations and best practices. For a quick (and relatively secure start), simply reference the ENV variables listed in the docker-compose.yml file.
+
+See also the [Nginx Reverse Proxy section](#nginx-reverse-proxy-for-https) above for setting up the Reverse Proxy with Nginx which makes secure, encrypted HTTPS traffic a breeze.

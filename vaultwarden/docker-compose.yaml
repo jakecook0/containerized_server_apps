@@ -15,6 +15,7 @@ services:
       - SHOW_PASSWORD_HINT
 #      - ROCKET_PORT
       - INVITATIONS_ALLOWED
+      - ADMIN_TOKEN
     restart: "always"
     networks: ["net"]
 

@@ -8,7 +8,7 @@
 # A sync script for the data directory store used for all app data
 # This directory is currently at: /mnt/data/ and is a 2TB raid 1 array
 
-log_path="$HOME/logs/b2/"
+log_path="/home/oasis/logs/b2/"
 timestamp=$(date '+%Y-%m-%d--%H-%M-%S')
 log_file=data_backup_$timestamp.log
 log=$log_path$log_file
@@ -45,6 +45,7 @@ echo "syncing all specified data to b2 bucket" >> $log
 sync_log=b2-sync-log_$timestamp.log
 sync_log_path=$log_path$sync_log
 b2 sync /mnt/data b2://sanctuary-data/ --excludeRegex '(^.*postgres-data\/)' --includeRegex '(^.*BACKUPS\/)' >> $sync_log_path
+#b2 sync /mnt/data b2://sanctuary-data/ --excludeRegex '(^.*postgres-data\/)' --excludeRegex '(^.*nextcloud-server\/)' --includeRegex '(^.*BACKUPS\/)' --includeRegex '(^.*nextcloud-server\/data)' --includeRegex '(^.*nextcloud-server\/config)' --includeRegex '(^.*nextcloud-server\/themes)' --dryRun
 
 if [ $? ]; then
   rm $sync_log_path >> $log

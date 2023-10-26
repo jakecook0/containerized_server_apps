@@ -1,0 +1,1 @@
+/home/oasis/.local/bin/b2_sync.sh

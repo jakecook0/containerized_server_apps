@@ -2,7 +2,7 @@
 version: "3.7"
 services:
   mealie-frontend:
-    image: hkotel/mealie:frontend-v1.0.0beta-4
+    image: hkotel/mealie:frontend-v1.0.0beta-5
     container_name: mealie-frontend
     environment:
     # Set Frontend ENV Variables Here
@@ -11,6 +11,7 @@ services:
       - VIRTUAL_PORT
       - TRUSTED_PROXIES
       - LETSENCRYPT_HOST
+      - ALLOW_SIGNUP
     restart: always
     ports:
       - "3000:3000"
@@ -19,7 +20,7 @@ services:
     networks: ["net", "common"]
 
   mealie-api:
-    image: hkotel/mealie:api-v1.0.0beta-4
+    image: hkotel/mealie:api-v1.0.0beta-5
     container_name: mealie-api
     volumes:
       - /mnt/data/all/mealie-data:/app/data/
@@ -39,6 +40,10 @@ services:
       - SMTP_FROM_EMAIL
       - SMTP_USER
       - SMTP_PASSWORD
+      - SECURITY_MAX_LOGIN_ATTEMPTS
+      - SECURITY_USER_LOCKOUT_TIME
+      - ALLOW_SIGNUP
+      - DEFAULT_EMAIL
 #      - VIRTUAL_HOST
 #      - VIRTUAL_PORT
 #      - LETSENCRYPT_HOST

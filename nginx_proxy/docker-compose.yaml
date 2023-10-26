@@ -3,7 +3,7 @@ version: "3.3"
 services:
 
     NginxProxy:
-        image: "jwilder/nginx-proxy:latest"
+        image: "jwilder/nginx-proxy:1.3"
 
         volumes:
             - "NPhtml:/usr/share/nginx/html"
@@ -21,6 +21,8 @@ services:
         ports:
             - "80:80"
             - "443:443"
+        #environments:
+        #  LOG_LEVEL: "DEBUG"
 
     LetsencryptCompanion:
         image: "jrcs/letsencrypt-nginx-proxy-companion:latest"
@@ -39,6 +41,11 @@ services:
         depends_on: ["NginxProxy"]
         restart: "always"
         networks: ["net"]
+
+#    AcmeCompanion:
+#      image: nginxproxy/acme-companion
+#      volumes:
+#        - "LCacme:/etc/acme.sh"
 
 
 volumes:

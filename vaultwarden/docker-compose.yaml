@@ -2,7 +2,7 @@ version: "3.8"
 services:
 
   Vaultwarden:
-    image: "vaultwarden/server:1.22.2"
+    image: "vaultwarden/server:1.27.0"
     container_name: vaultwarden
 #    user: 1000:1000
     volumes:

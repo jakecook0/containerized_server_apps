@@ -14,7 +14,7 @@ services:
       - ALLOW_SIGNUP
     restart: always
     ports:
-      - "3000:3000"
+      - "4000:3000"
     volumes:
       - /mnt/data/all/mealie-data:/app/data/ # 
     networks: ["net", "common"]

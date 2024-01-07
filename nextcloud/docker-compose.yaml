@@ -5,7 +5,7 @@ services:
     image: "postgres:13.8"
     hostname: "${POSTGRES_HOST}"
     volumes:
-      - "/mnt/data/postgres-data:/var/lib/postgresql/data"
+      - "/mnt/data/all/nextcloud/postgres-data:/var/lib/postgresql/data"
     command: -c 'max_connections=200' -c 'shared_buffers=256MB'
     environment:
       - POSTGRES_DB
@@ -15,34 +15,41 @@ services:
     networks: ["common"]
 
   Nextcloud:
-    image: "nextcloud:27.1.1-apache"
+    # image: "nextcloud:27.1.5-apache"
+    image: "nextcloud:28.0.1-apache"
     volumes:
-      - "/mnt/data/nextcloud-server:/var/www/html"
-      - "/mnt/data/all/nextcloud-data:/var/www/html/data"
-    environment:
-      - LETSENCRYPT_HOST
-      - VIRTUAL_HOST
-      - TRUSTED_PROXIES
-      - OVERWRITEPROTOCOL
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
-      - POSTGRES_HOST
-      - SMTP_HOST
-      - SMTP_PORT
-      - SMTP_NAME
-      - SMTP_PASSWORD
-      - MAIL_FROM_ADDRESS
-      - NEXTCLOUD_TRUSTED_DOMAINS
-      - NEXTCLOUD_ADMIN_USER
-      - NEXTCLOUD_ADMIN_PASSWORD
+      - "/mnt/data/all/nextcloud/nextcloud-server:/var/www/html"
+      - "/mnt/data/all/nextcloud/nextcloud-data:/var/www/html/data"
+    env_file:
+      - .env
+    # environment:
+    #   - LETSENCRYPT_HOST
+    #   - VIRTUAL_HOST
+    #   - TRUSTED_PROXIES
+    #   - OVERWRITEPROTOCOL
+    #   - OVERWRITEHOST
+    #   - POSTGRES_USER
+    #   - POSTGRES_PASSWORD
+    #   - POSTGRES_DB
+    #   - POSTGRES_HOST
+    #   - SMTP_HOST
+    #   - SMTP_PORT
+    #   - SMTP_NAME
+    #   - SMTP_PASSWORD
+    #   - MAIL_FROM_ADDRESS
+    #   - NEXTCLOUD_TRUSTED_DOMAINS
+    #   - NEXTCLOUD_ADMIN_USER
+    #   - NEXTCLOUD_ADMIN_PASSWORD
+    #   - REDIS_HOST
+    #   - REDIS_HOST_PORT
+    #   - REDIS_HOST_PASSWORD
     depends_on:
       - "NCDatabase"
     restart: "always"
     networks: ["net", "common"]
 
   Redis:
-    image: "redis:alpine"
+    image: "redis:7.2.3-alpine"
     networks: ["common"]
     hostname: "redis"
     ports: 
@@ -50,6 +57,12 @@ services:
     restart: "always"
     environment:
       - REDIS_PASSWORD
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 500M
 
 networks:
   net:

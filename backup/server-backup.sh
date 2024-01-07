@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #### MANUAL INITIALIZATION STEPS ####
-# install restic
+# install restic (v0.16 or higher)
 # Create new B2 bucket, set encryption, lifecycle as desired
 # Create API key with access to new B2 bucket
 # setup AWS_ACCESS_KEY_ID & AWS_SECRET_ACCESS_KEY exports with API key values
@@ -16,6 +16,7 @@
 
 # TODO: check that 'backup_directores.txt' exists
 
+# shellcheck disable=SC1091
 # shellcheck source=.backup.env
 source .backup.env
 
@@ -35,31 +36,30 @@ BACKUP_DATA_DIR="/mnt/data/BACKUPS"
 
 # Databases requiring 'pg_dump' export location identified by:
 #     <db-container-name>:<dbname>:<db_user>
-declare -a DATABASES=( nextcloud_NCDatabase_1:NC:nextcloud immich_postgres:immich:postgres )
+declare -a DATABASES=(nextcloud_NCDatabase_1:NC:nextcloud immich_postgres:immich:postgres)
 
 # Main
 
 ## Iterate over DATABASES, create postgres dump into BACKUPS
-for db_string in "${DATABASES[@]}"
-do
+for db_string in "${DATABASES[@]}"; do
   {
-   echo "$timestamp Parsing db string: '$db_string'"
-   container="$(echo "$db_string" | cut -d ':' -f 1)"
-   database="$(echo "$db_string" | cut -d ':' -f 2)"
-   db_user="$(echo "$db_string" | cut -d ':' -f 3)"
+    echo "$timestamp Parsing db string: '$db_string'"
+    container="$(echo "$db_string" | cut -d ':' -f 1)"
+    database="$(echo "$db_string" | cut -d ':' -f 2)"
+    db_user="$(echo "$db_string" | cut -d ':' -f 3)"
 
-   # Ensure backup directories are created
-   mkdir -p "$BACKUP_DATA_DIR/$container"
+    # Ensure backup directories are created
+    mkdir -p "$BACKUP_DATA_DIR/$container"
 
-   docker exec -it "$container" pg_dump -U "$db_user" "$database" > "$BACKUP_DATA_DIR/$container/$(date +%Y-%m-%d)-$container.sql"
+    docker exec -it "$container" pg_dump -U "$db_user" "$database" >"$BACKUP_DATA_DIR/$container/$(date +%Y-%m-%d)-$container.sql"
 
-   if [ $? -eq 0 ]; then
-    echo "$timestamp Successfully backed up '$database' in '$container'"
-   else
-     echo "$timestamp ERROR: pg_dump encountered issue with '$container'"
-   fi
+    if [ $? -eq 0 ]; then
+      echo "$timestamp Successfully backed up '$database' in '$container'"
+    else
+      echo "$timestamp ERROR: pg_dump encountered issue with '$container'"
+    fi
 
-  } >> $log
+  } >>"$log"
 done
 
 ## Backup all directories + DB backups with Restic
@@ -80,6 +80,6 @@ done
 
   ### Full backup w/ very verbose
   restic -r s3:$S3_ENDPOINT backup -vv --tag "scheduled-$(date +%Y-%m-%d)" --files-from $BACKUP_FILE_LIST
-} >> $log
+} >>"$log"
 
 exit 0

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck source=.backup.env
 
 #### MANUAL INITIALIZATION STEPS ####
 # install restic
@@ -17,17 +16,22 @@
 
 # TODO: check that 'backup_directores.txt' exists
 
+# shellcheck source=.backup.env
 source .backup.env
 
-# TODO: setup log
-log="/home/oasis/logs/backups/$(date +%Y-%m-%d)"
+export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+export RESTIC_PASSWORD=$RESTIC_PASSWORD
+
+timestamp=$(date '+%Y-%m-%d--%H-%M-%S')
+
+log="/home/oasis/logs/backups/$timestamp"
+touch "$log"
 
 # Variables
-BACKUP_FILE_LIST=backup_directories.txt
-S3_ENDPOINT="https://$B2_REGION/$B2_BUCKET_NAME"
-# Path of raw directories
-ROOT_DATA_PATH="/mnt/data"
-BACKUP_DATA_DIR="$ROOT_DATA_PATH/BACKUPS"
+BACKUP_FILE_LIST="backup_directories.txt"
+S3_ENDPOINT="$B2_S3_URL/$B2_BUCKET_NAME"
+BACKUP_DATA_DIR="/mnt/data/BACKUPS"
 
 # Databases requiring 'pg_dump' export location identified by:
 #     <db-container-name>:<dbname>:<db_user>
@@ -39,19 +43,20 @@ declare -a DATABASES=( nextcloud_NCDatabase_1:NC:nextcloud immich_postgres:immic
 for db_string in "${DATABASES[@]}"
 do
   {
-   echo "Parsing db string: '$db_string'"
+   echo "$timestamp Parsing db string: '$db_string'"
    container="$(echo "$db_string" | cut -d ':' -f 1)"
    database="$(echo "$db_string" | cut -d ':' -f 2)"
    db_user="$(echo "$db_string" | cut -d ':' -f 3)"
 
-   cmd=$(docker exec -it "$container" pg_dump -U "$db_user" "$database" > "$BACKUP_DATA_DIR/$container/$(date +%Y-%m-%d)-$container.sql")
-   ## For local testing:
-  #  cmd=$(echo $container)
+   # Ensure backup directories are created
+   mkdir -p "$BACKUP_DATA_DIR/$container"
 
-   if [ "$cmd" ]; then
-    echo "Successfully backed up '$database' in '$container'"
+   docker exec -it "$container" pg_dump -U "$db_user" "$database" > "$BACKUP_DATA_DIR/$container/$(date +%Y-%m-%d)-$container.sql"
+
+   if [ $? -eq 0 ]; then
+    echo "$timestamp Successfully backed up '$database' in '$container'"
    else
-     echo "ERROR: pg_dump encountered issue with '$container'"
+     echo "$timestamp ERROR: pg_dump encountered issue with '$container'"
    fi
 
   } >> $log
@@ -59,13 +64,22 @@ done
 
 ## Backup all directories + DB backups with Restic
 
-### Dry run backup
 # shellcheck disable=SC2086
-restic -r s3:$S3_ENDPOINT backup --dry-run --tag "scheduled-$(date +%Y-%m-%d)" --files-from $BACKUP_FILE_LIST >> $log
+{
+  ### Dry run backup
+  echo "=== BEGIN DRY-RUN - $timestamp ==="
 
+  restic -r s3:$S3_ENDPOINT backup -v --dry-run --tag "scheduled-$(date +%Y-%m-%d)" --files-from $BACKUP_FILE_LIST
+  exc=$?
 
-### Full backup
-# shellcheck disable=SC2086
-restic -r s3:$S3_ENDPOINT backup --tag "scheduled-$(date +%Y-%m-%d)" --files-from $BACKUP_FILE_LIST >> $log
+  if [ $exc -ne 0 ]; then
+    echo "$timestamp error in dry run, exit code: $exc"
+    exit 1
+  fi
+  echo "=== END DRY-RUN - $timestamp ==="
+
+  ### Full backup w/ very verbose
+  restic -r s3:$S3_ENDPOINT backup -vv --tag "scheduled-$(date +%Y-%m-%d)" --files-from $BACKUP_FILE_LIST
+} >> $log
 
 exit 0

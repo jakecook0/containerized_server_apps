@@ -1,6 +1,6 @@
 # https://restic.readthedocs.io/en/stable/040_backup.html#including-files
 
-/mnt/data/all/BACKUPS
+/mnt/data/BACKUPS
 /mnt/data/all/immich
 /mnt/data/all/mealie-data
 /mnt/data/all/navidrome

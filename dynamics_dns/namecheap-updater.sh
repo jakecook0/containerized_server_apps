@@ -40,4 +40,3 @@ for subdomain in "${subdomains[@]}"; do
     echo "Error updating DNS record, error code: $update_err"
   fi
 done
-

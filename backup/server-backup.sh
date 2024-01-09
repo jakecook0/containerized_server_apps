@@ -12,9 +12,17 @@
 #      Just need the password used for init
 #########
 
+# Variables
+BACKUP_FILE_LIST="backup_directories.txt"
+S3_ENDPOINT="$B2_S3_URL/$B2_BUCKET_NAME"
+BACKUP_DATA_DIR="/mnt/data/BACKUPS"
+
 # Init
 
-# TODO: check that 'backup_directores.txt' exists
+if ! [ -f $BACKUP_FILE_LIST ]; then
+  echo "$BACKUP_FILE_LIST does not exist, create it with one file pattern per line to continue"
+  exit 1
+fi
 
 # shellcheck disable=SC1091
 # shellcheck source=.backup.env
@@ -29,10 +37,6 @@ timestamp=$(date '+%Y-%m-%d--%H-%M-%S')
 log="/home/oasis/logs/backups/$timestamp"
 touch "$log"
 
-# Variables
-BACKUP_FILE_LIST="backup_directories.txt"
-S3_ENDPOINT="$B2_S3_URL/$B2_BUCKET_NAME"
-BACKUP_DATA_DIR="/mnt/data/BACKUPS"
 
 # Databases requiring 'pg_dump' export location identified by:
 #     <db-container-name>:<dbname>:<db_user>
@@ -74,12 +78,20 @@ done
 
   if [ $exc -ne 0 ]; then
     echo "$timestamp error in dry run, exit code: $exc"
-    exit 1
+    exit 2
   fi
   echo "=== END DRY-RUN - $timestamp ==="
 
   ### Full backup w/ very verbose
   restic -r s3:$S3_ENDPOINT backup -vv --tag "scheduled-$(date +%Y-%m-%d)" --files-from $BACKUP_FILE_LIST
+  exc=$?
+  
+  if [ $exc -ne 0 ]; then
+    echo "$timestamp error in backup, exit code: $exc"
+    exit 3
+  fi
+
+  echo "$timestamp DONE"
 } >>"$log"
 
 exit 0

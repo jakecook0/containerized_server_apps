@@ -12,21 +12,24 @@
 #      Just need the password used for init
 #########
 
+# TODO: clean up BACKUP files older than N days so they get deleted from backup
+
+# shellcheck disable=SC1091
+# shellcheck source=.backup.env
+source .backup.env
+
 # Variables
 BACKUP_FILE_LIST="backup_directories.txt"
 S3_ENDPOINT="$B2_S3_URL/$B2_BUCKET_NAME"
 BACKUP_DATA_DIR="/mnt/data/BACKUPS"
 
 # Init
+echo "S3 endpoint: $S3_ENDPOINT"
 
 if ! [ -f $BACKUP_FILE_LIST ]; then
   echo "$BACKUP_FILE_LIST does not exist, create it with one file pattern per line to continue"
   exit 1
 fi
-
-# shellcheck disable=SC1091
-# shellcheck source=.backup.env
-source .backup.env
 
 export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
@@ -36,7 +39,6 @@ timestamp=$(date '+%Y-%m-%d--%H-%M-%S')
 
 log="/home/oasis/logs/backups/$timestamp"
 touch "$log"
-
 
 # Databases requiring 'pg_dump' export location identified by:
 #     <db-container-name>:<dbname>:<db_user>

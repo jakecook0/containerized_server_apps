@@ -1,0 +1,77 @@
+version: "3.8"
+services:
+
+  synapse:
+    container_name: synapse
+    user: "991"
+    env_file:
+      - .env
+    image: matrixdotorg/synapse:v1.99.0
+#    user: 991:991
+    ports:
+      - "8008:8008"
+    volumes:
+      - /mnt/data/all/matrix/synapse:/data
+    restart: "unless-stopped"
+    networks: ["net", "common"]
+
+  bridge-gmessages:
+    image: dock.mau.dev/mautrix/gmessages:v0.2.4
+    depends_on:
+      - postgres-bridge-gmessages
+    container_name: bridge-gmessages
+    volumes:
+      - /mnt/data/all/matrix/bridge-gmessages:/data
+    restart: "unless-stopped"
+    networks: ["common"]
+
+  postgres-bridge-gmessages:
+    image: "postgres:16.1-alpine3.19"
+    container_name: postgres-bridge-gmessages
+    env_file:
+      - .env.bridge.gmessages
+    volumes:
+      - /mnt/data/all/matrix/postgres/bridge-gmessages:/var/lib/postgresql/data
+    command: -c 'max_connections=200' -c 'shared_buffers=256MB'
+#    environment:
+#      - POSTGRES_USER
+#      - POSTGRES_DB
+#      - POSTGRES_PASSWORD
+#      - POSTGRES_HOST
+    restart: "unless-stopped"
+    networks: ["common"]
+
+  bridge-signal:
+    image: dock.mau.dev/mautrix/signal:v0.4.3
+    depends_on:
+      - postgres-bridge-signal
+    container_name: bridge-signal
+    volumes:
+      - /mnt/data/all/matrix/bridge-signal:/data
+    restart: "unless-stopped"
+    networks: ["common"]
+
+  postgres-bridge-signal:
+    image: "postgres:16.1-alpine3.19"
+    container_name: postgres-bridge-signal
+    env_file:
+      - .env.bridge.signal
+    volumes:
+      - /mnt/data/all/matrix/postgres/bridge-signal:/var/lib/postgresql/data
+    command: -c 'max_connections=200' -c 'shared_buffers=256MB'
+#    environment:
+#      - POSTGRES_USER
+#      - POSTGRES_DB
+#      - POSTGRES_PASSWORD
+#      - POSTGRES_HOST
+    restart: "unless-stopped"
+    networks: ["common"]
+
+#volumes:
+#  matrix-synapse-data:
+#    external: true
+
+networks:
+  net:
+    external: true
+  common:

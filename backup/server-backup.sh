@@ -57,9 +57,7 @@ for db_string in "${DATABASES[@]}"; do
     # Ensure backup directories are created
     mkdir -p "$BACKUP_DATA_DIR/$container"
 
-    docker exec -it "$container" pg_dump -U "$db_user" "$database" >"$BACKUP_DATA_DIR/$container/$(date +%Y-%m-%d)-$container.sql"
-
-    if [ $? -eq 0 ]; then
+    if docker exec "$container" pg_dump -U "$db_user" "$database" >"$BACKUP_DATA_DIR/$container/$(date +%Y-%m-%d)-$container.sql"; then
       echo "$timestamp Successfully backed up '$database' in '$container'"
     else
       echo "$timestamp ERROR: pg_dump encountered issue with '$container'"

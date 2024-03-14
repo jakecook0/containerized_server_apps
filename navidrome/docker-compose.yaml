@@ -1,11 +1,7 @@
 version: "3"
 services:
   navidrome:
-<<<<<<< HEAD
     image: deluan/navidrome:0.51.0
-=======
-    image: deluan/navidrome:0.49.3
->>>>>>> 86161c99cfa118eeb86d7ab0ba66a0fce0a0f5b5
     user: 1000:1000 # should be owner of volumes
     ports:
       - "4533"

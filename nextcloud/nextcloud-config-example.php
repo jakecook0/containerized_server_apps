@@ -14,4 +14,3 @@
 
 'overwritehost' => 'nextcloud.reclusivy.com',
 #'default_phone_region' => 'US',
-

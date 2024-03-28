@@ -15,7 +15,7 @@ services:
     networks: ["common"]
 
   Nextcloud:
-    image: "nextcloud:28.0.2-apache"
+    image: "nextcloud:28.0.3-apache"
     volumes:
       - "/mnt/data/all/nextcloud/nextcloud-server:/var/www/html"
       - "/mnt/data/all/nextcloud/nextcloud-data:/var/www/html/data"

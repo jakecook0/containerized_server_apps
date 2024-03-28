@@ -2,7 +2,7 @@
 version: "3.7"
 services:
   mealie:
-    image: hkotel/mealie:v1.2.0
+    image: hkotel/mealie:v1.3.2
     container_name: mealie
     restart: always
     ports:

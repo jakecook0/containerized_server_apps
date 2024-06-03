@@ -15,7 +15,7 @@ services:
     networks: ["common"]
 
   Nextcloud:
-    image: "nextcloud:28.0.3-apache"
+    image: "nextcloud:28.0.6-apache"
     volumes:
       - "/mnt/data/all/nextcloud/nextcloud-server:/var/www/html"
       - "/mnt/data/all/nextcloud/nextcloud-data:/var/www/html/data"
@@ -48,7 +48,7 @@ services:
     networks: ["net", "common"]
 
   Redis:
-    image: "redis:7.2.3-alpine"
+    image: "redis:7.2.5-alpine"
     networks: ["common"]
     hostname: "redis"
     ports: 

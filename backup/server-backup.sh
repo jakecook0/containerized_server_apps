@@ -12,8 +12,6 @@
 #      Just need the password used for init
 #########
 
-# TODO: clean up BACKUP files older than N days so they get deleted from backup
-
 # shellcheck disable=SC1091
 # shellcheck source=.backup.env
 source .backup.env
@@ -42,7 +40,7 @@ touch "$log"
 
 # Databases requiring 'pg_dump' export location identified by:
 #     <db-container-name>:<dbname>:<db_user>
-declare -a DATABASES=(nextcloud_NCDatabase_1:NC:nextcloud immich_postgres:immich:postgres)
+declare -a DATABASES=(nextcloud-NCDatabase-1:NC:nextcloud immich_postgres:immich:postgres)
 
 # Main
 
@@ -57,7 +55,7 @@ for db_string in "${DATABASES[@]}"; do
     # Ensure backup directories are created
     mkdir -p "$BACKUP_DATA_DIR/$container"
 
-    if docker exec "$container" pg_dump -U "$db_user" "$database" >"$BACKUP_DATA_DIR/$container/$(date +%Y-%m-%d)-$container.sql"; then
+    if docker exec "$container" pg_dump -Fc -h localhost -U "$db_user" "$database" >"$BACKUP_DATA_DIR/$container/$(date +%Y-%m-%d)-$container.sql"; then
       echo "$timestamp Successfully backed up '$database' in '$container'"
     else
       echo "$timestamp ERROR: pg_dump encountered issue with '$container'"

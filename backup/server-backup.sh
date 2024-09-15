@@ -15,11 +15,12 @@
 # shellcheck disable=SC1091
 # shellcheck source=.backup.env
 source .backup.env
+# shellcheck source=common.sh
+source common.sh
 
 # Variables
 BACKUP_FILE_LIST="backup_directories.txt"
 S3_ENDPOINT="$B2_S3_URL/$B2_BUCKET_NAME"
-BACKUP_DATA_DIR="/mnt/data/BACKUPS"
 
 # Init
 echo "S3 endpoint: $S3_ENDPOINT"
@@ -33,9 +34,9 @@ export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 export RESTIC_PASSWORD=$RESTIC_PASSWORD
 
-timestamp=$(date '+%Y-%m-%d--%H-%M-%S')
-
-log="/home/oasis/logs/backups/$timestamp"
+log="$LOG_DIR/$timestamp"
+echo $log
+exit
 touch "$log"
 
 # Databases requiring 'pg_dump' export location identified by:
@@ -53,9 +54,9 @@ for db_string in "${DATABASES[@]}"; do
     db_user="$(echo "$db_string" | cut -d ':' -f 3)"
 
     # Ensure backup directories are created
-    mkdir -p "$BACKUP_DATA_DIR/$container"
+    mkdir -p "$DB_BACKUP_DIR/$container"
 
-    if docker exec "$container" pg_dump -Fc -h localhost -U "$db_user" "$database" >"$BACKUP_DATA_DIR/$container/$(date +%Y-%m-%d)-$container.sql"; then
+    if docker exec "$container" pg_dump -Fc -h localhost -U "$db_user" "$database" >"$DB_BACKUP_DIR/$container/$(date +%Y-%m-%d)-$container.sql"; then
       echo "$timestamp Successfully backed up '$database' in '$container'"
     else
       echo "$timestamp ERROR: pg_dump encountered issue with '$container'"

@@ -35,8 +35,6 @@ export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 export RESTIC_PASSWORD=$RESTIC_PASSWORD
 
 log="$LOG_DIR/$timestamp"
-echo $log
-exit
 touch "$log"
 
 # Databases requiring 'pg_dump' export location identified by:

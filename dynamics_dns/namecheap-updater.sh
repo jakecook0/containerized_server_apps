@@ -3,7 +3,7 @@
 rootdomain="reclusivy.com"
 namecheap_dns_password=$(cat .env)
 namecheap_update_address=https://dynamicdns.park-your-domain.com/update?
-subdomains=(www mealie nextcloud @ photos music)
+subdomains=(www mealie nextcloud @ photos music vpn)
 
 # Get current public IP
 public_ip=$(curl -s 'https://api.ipify.org')
